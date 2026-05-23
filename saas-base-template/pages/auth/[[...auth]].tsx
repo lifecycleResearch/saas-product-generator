@@ -14,15 +14,11 @@ export default function AuthPage() {
     setLoading(true)
     setMessage('')
 
-    const options = {
-      email,
-      password,
-      options: { emailRedirectTo: `${window.location.origin}/api/auth/callback` },
-    }
+    const redirectTo = `${window.location.origin}/api/auth/callback`
 
     const { error } = mode === 'signin'
-      ? await supabase.auth.signInWithPassword(options)
-      : await supabase.auth.signUp(options)
+      ? await supabase.auth.signInWithPassword({ email, password })
+      : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: redirectTo } })
 
     if (error) {
       setMessage(error.message)
