@@ -1,8 +1,9 @@
 import json, os, subprocess, re, shutil
 
-BASE = "/Users/richardkamolvathin/saas-products"
-TEMPLATE = "/Users/richardkamolvathin/saas-base-template"
-DATA_FILE = "/Users/richardkamolvathin/saas-products-data.json"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE = os.environ.get("SAAS_OUTPUT_DIR", os.path.join(SCRIPT_DIR, "saas-products"))
+TEMPLATE = os.environ.get("SAAS_TEMPLATE_DIR", os.path.join(SCRIPT_DIR, "saas-base-template"))
+DATA_FILE = os.environ.get("SAAS_DATA_FILE", os.path.join(SCRIPT_DIR, "saas-products-data.json"))
 
 with open(DATA_FILE) as f:
     products = json.load(f)
