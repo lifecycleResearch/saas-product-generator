@@ -1,5 +1,5 @@
 import { TrendingUp, DollarSign, BarChart3 } from 'lucide-react'
-import type { ProductData } from '../../lib/product-data'
+import type { ProductData } from '../../lib/types'
 
 export function ROI({ product }: { product: ProductData }) {
   if (!product.roi) return null

@@ -1,6 +1,6 @@
 import { Package, ArrowRight } from 'lucide-react'
 import { Button } from '../ui/Button'
-import type { ProductData } from '../../lib/product-data'
+import type { ProductData } from '../../lib/types'
 
 export function Bundle({ product }: { product: ProductData }) {
   if (!product.bundle) return null

@@ -1,7 +1,7 @@
 import { Activity, Bell, Shield, BarChart3, Workflow, Globe } from 'lucide-react'
 import { SectionHeader } from '../ui/SectionHeader'
 import { cn } from '../../lib/utils'
-import type { ProductData } from '../../lib/product-data'
+import type { ProductData } from '../../lib/types'
 
 interface FeaturesProps {
   product: ProductData

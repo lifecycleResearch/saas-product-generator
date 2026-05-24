@@ -1,7 +1,7 @@
 import { ArrowRight, Shield, Zap, TrendingUp } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { cn } from '../../lib/utils'
-import type { ProductData } from '../../lib/product-data'
+import type { ProductData } from '../../lib/types'
 
 interface HeroProps {
   product: ProductData

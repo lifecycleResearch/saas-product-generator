@@ -1,74 +1,70 @@
-import { ArrowRight, X, Check } from 'lucide-react'
-import { Button } from '../ui/Button'
+import { Check, X } from 'lucide-react'
 import { SectionHeader } from '../ui/SectionHeader'
-import type { ProductData } from '../../lib/product-data'
+import { cn } from '../../lib/utils'
+import type { ProductData } from '../../lib/types'
 
 export function Comparison({ product }: { product: ProductData }) {
-  if (!product.competitor) return null
+  const competitorName = product.competitor?.name || 'Manual Methods'
+
+  const comparisons = [
+    { us: 'Real-time monitoring 24/7', them: 'Manual checks during business hours' },
+    { us: `${product.roi}x average ROI`, them: 'Reactive, not proactive' },
+    { us: 'Automated alerts via email, Slack, SMS', them: 'Missed opportunities and delays' },
+    { us: 'Hundreds of integrated data sources', them: 'Limited to what you can find' },
+    { us: 'AI-powered insights and predictions', them: 'Manual analysis and guesswork' },
+    { us: 'White-glove onboarding & support', them: 'No dedicated support' },
+  ]
 
   return (
     <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          title={`Why Choose ${product.name}?`}
-          description="See how we compare to the competition"
+          title={`${product.name} vs. ${competitorName}`}
+          description="See how we stack up against the alternatives."
         />
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-surface rounded-2xl p-8 border border-border">
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="col-span-1" />
-              <div className="text-center">
-                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mx-auto mb-2">
-                  <span className="text-white font-bold text-sm">{product.name[0]}</span>
-                </div>
-                <p className="font-semibold text-text text-sm">{product.name}</p>
-              </div>
-              <div className="text-center">
-                <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center mx-auto mb-2">
-                  <span className="text-gray-500 font-bold text-sm">{product.competitor.name[0]}</span>
-                </div>
-                <p className="font-semibold text-text text-sm">{product.competitor.name}</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 items-center py-3 border-b border-border">
-                <p className="text-sm text-text-muted">Starting Price</p>
-                <p className="text-center font-bold text-primary text-lg">
-                  ${product.pricing.starter.price.toLocaleString()}<span className="text-sm font-normal">/mo</span>
-                </p>
-                <p className="text-center text-text-muted line-through">
-                  ${product.competitor.price.toLocaleString()}<span className="text-sm">/mo</span>
-                </p>
-              </div>
-              <div className="grid grid-cols-3 gap-4 items-center py-3 border-b border-border">
-                <p className="text-sm text-text-muted">Real-time Data</p>
-                <div className="flex justify-center"><Check className="w-5 h-5 text-primary" /></div>
-                <div className="flex justify-center"><Check className="w-5 h-5 text-gray-300" /></div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 items-center py-3 border-b border-border">
-                <p className="text-sm text-text-muted">API Access</p>
-                <div className="flex justify-center"><Check className="w-5 h-5 text-primary" /></div>
-                <div className="flex justify-center"><X className="w-5 h-5 text-gray-300" /></div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 items-center py-3 border-b border-border">
-                <p className="text-sm text-text-muted">Custom Alerts</p>
-                <div className="flex justify-center"><Check className="w-5 h-5 text-primary" /></div>
-                <div className="flex justify-center"><X className="w-5 h-5 text-gray-300" /></div>
-              </div>
-              <div className="grid grid-cols-3 gap-4 items-center py-3">
-                <p className="text-sm text-text-muted">Dedicated Support</p>
-                <div className="flex justify-center"><Check className="w-5 h-5 text-primary" /></div>
-                <div className="flex justify-center"><X className="w-5 h-5 text-gray-300" /></div>
-              </div>
-            </div>
-          </div>
-          <div className="text-center mt-8">
-            <Button as="a" href={`/api/auth/signup?ref=${product.slug}`}>
-              Switch to {product.name} Today
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </div>
+        <div className="overflow-hidden rounded-2xl border border-border shadow-sm">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-surface border-b border-border">
+                <th className="text-left px-6 py-4 text-text font-semibold">Feature</th>
+                <th className="text-center px-6 py-4">
+                  <span className="inline-flex items-center gap-2 text-primary font-bold">
+                    <Check className="w-4 h-4" /> {product.name}
+                  </span>
+                </th>
+                <th className="text-center px-6 py-4">
+                  <span className="inline-flex items-center gap-2 text-text-muted font-medium">
+                    <X className="w-4 h-4" /> {competitorName}
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparisons.map((row, i) => (
+                <tr key={i} className={cn('border-b border-border last:border-0', i % 2 === 0 && 'bg-white')}>
+                  <td className="px-6 py-4 text-text">{row.us.split(' ')[0] === product.roi.toString() || row.us.startsWith('Real-time') ? row.us : row.us}</td>
+                  <td className="px-6 py-4 text-center">
+                    <Check className="w-5 h-5 text-green-500 mx-auto" />
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <X className="w-5 h-5 text-red-400 mx-auto" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+        {product.competitor && (
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-2 bg-primary/5 rounded-full px-6 py-3">
+              <span className="text-text-muted text-sm">{competitorName} costs</span>
+              <span className="text-2xl font-bold text-red-500">${product.competitor.price.toLocaleString()}/mo</span>
+              <span className="text-text-muted text-sm">vs</span>
+              <span className="text-2xl font-bold text-primary">${product.pricing.starter.price}/mo</span>
+              <span className="text-text-muted text-sm">for {product.name}</span>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )

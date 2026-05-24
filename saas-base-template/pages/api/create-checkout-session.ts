@@ -1,16 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
+import allProducts from '../../lib/enriched-data.json'
+import type { ProductData } from '../../lib/types'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
 
-const PRICES: Record<string, number> = {
-  starter: __STARTER_PRICE__,
-  pro: __PRO_PRICE__,
-  enterprise: __ENTERPRISE_PRICE__,
-}
-
 interface CheckoutBody {
   plan?: string
+}
+
+function getProductSlug(req: NextApiRequest): string {
+  const host = req.headers.host || ''
+  const parts = host.split('.')
+  if (parts.length >= 2 && !['www', 'localhost', 'vercel'].includes(parts[0])) {
+    return parts[0]
+  }
+  return 'fdarecallalert'
 }
 
 export default async function handler(
@@ -27,13 +32,21 @@ export default async function handler(
 
   try {
     const { plan } = req.body as CheckoutBody
+    const slug = getProductSlug(req)
+    const product = (allProducts as unknown as ProductData[]).find((p) => p.slug === slug)
 
-    if (!plan || !PRICES[plan]) {
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' })
+    }
+
+    const priceKey = plan as keyof typeof product.pricing
+    if (!plan || !product.pricing[priceKey]) {
       return res.status(400).json({ error: 'Invalid plan selected' })
     }
 
-    const amount = PRICES[plan]
-    const origin = req.headers.origin || 'https://__PRODUCT_SLUG__.vercel.app'
+    const price = product.pricing[priceKey].price
+    const origin = req.headers.origin || `https://${slug}.grea.site`
+    const planName = plan.charAt(0).toUpperCase() + plan.slice(1)
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -42,10 +55,10 @@ export default async function handler(
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `__PRODUCT_NAME__ ${plan.charAt(0).toUpperCase() + plan.slice(1)}`,
-              description: '__PRODUCT_DESCRIPTION__',
+              name: `${product.name} ${planName}`,
+              description: product.description,
             },
-            unit_amount: amount * 100,
+            unit_amount: price * 100,
             recurring: { interval: 'month' },
           },
           quantity: 1,
@@ -54,9 +67,13 @@ export default async function handler(
       mode: 'subscription',
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing`,
+      metadata: {
+        product_slug: slug,
+        plan: plan,
+      },
     })
 
-    return res.status(200).json({ id: session.id })
+    return res.status(200).json({ id: session.id, url: session.url })
   } catch (err) {
     console.error('Stripe checkout error:', err)
     return res.status(500).json({ error: 'Failed to create checkout session' })
